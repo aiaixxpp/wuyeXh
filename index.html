@@ -9113,26 +9113,29 @@
 }
 
 /* 手机设备 */
-@media (max-width: 480px) {
-    .video-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
-    .pagination {
-        gap: 3px;
-    }
-    
-    .page-btn, .page-num {
-        padding: 6px 12px;
-        font-size: 14px;
-        min-width: 40px;
-    }
-    
-    .page-info {
-        font-size: 12px;
-    }
-}
+@media (max-width: 767px) {
+            .video-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px; /* 减小间距以适应更小的屏幕 */
+            }
+            
+            .thumbnail {
+                height: 150px; /* 适当减小图片高度 */
+            }
+            
+            .video-info {
+                padding: 10px; /* 减小内边距 */
+            }
+            
+            .video-title {
+                font-size: 14px; /* 减小字体大小 */
+            }
+            
+            .video-meta {
+                font-size: 12px; /* 减小元数据字体大小 */
+            }
+        }
+
 </style>
 
 <!-- 添加以下JavaScript代码到您的<script>标签中 -->
