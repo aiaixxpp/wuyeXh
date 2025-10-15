@@ -1,0 +1,548 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>福利导航</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url('https://www.huaxia.com/upload/resources/image/2021/03/01/52117_700x700.jpeg');
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 轮播图样式 */
+        .carousel-container {
+            position: relative;
+            max-width: 100%;
+            margin: 20px auto;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            aspect-ratio: 16/9; /* 使用宽高比确保容器比例 */
+            background-color: rgba(0, 0, 0, 0.2); /* 添加背景色，防止透明图片看不清 */
+        }
+        
+        .carousel-slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* 改为contain确保图片完整显示 */
+            cursor: pointer;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .carousel-slide.active {
+            display: block;
+        }
+        
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+        
+        .carousel-nav button {
+            background-color: rgba(255, 255, 255, 0.5);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .carousel-nav button:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .carousel-indicators {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            z-index: 10;
+        }
+        
+        .carousel-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            margin: 0 4px;
+            cursor: pointer;
+        }
+        
+        .carousel-indicator.active {
+            background-color: white;
+        }
+        
+        /* 小图片区域样式 */
+        .small-images {
+            margin: 30px 0;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 20px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr); /* 电脑版显示六个 */
+            gap: 10px;
+        }
+        
+        .small-image-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 6px;
+            aspect-ratio: 1/1; /* 使用宽高比确保容器是正方形 */
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+            cursor: pointer;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        
+        .small-image-container:hover {
+            transform: scale(1.03);
+        }
+        
+        .small-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* 改为contain确保图片完整显示 */
+            display: block;
+            background-color: rgba(0, 0, 0, 0.1); /* 添加轻微背景色，防止透明图片看不清 */
+        }
+        
+        .image-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 3px;
+            text-align: center;
+            font-size: 10px;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+        }
+        
+        .small-image-container:hover .image-overlay {
+            transform: translateY(0);
+        }
+        
+        /* 框架导航样式 */
+        .navigation-frame {
+            margin: 30px 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr); /* 电脑版显示六个 */
+            gap: 10px;
+        }
+        
+        .nav-item {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 10px 5px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid #e9ecef;
+            text-decoration: none;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .nav-item:hover {
+            background-color: #e9ecef;
+            transform: translateY(-3px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            color: #007bff;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .carousel-container {
+                aspect-ratio: 4/3; /* 在小屏幕上调整比例 */
+            }
+            
+            .carousel-nav button {
+                width: 30px;
+                height: 30px;
+                font-size: 14px;
+            }
+            
+            .carousel-indicator {
+                width: 8px;
+                height: 8px;
+                margin: 0 3px;
+            }
+            
+            .section-title {
+                font-size: 18px;
+                margin-bottom: 10px;
+            }
+            
+            .images-grid {
+                grid-template-columns: repeat(4, 1fr); /* 手机版显示四个 */
+                gap: 8px;
+            }
+            
+            .nav-grid {
+                grid-template-columns: repeat(4, 1fr); /* 手机版显示四个 */
+                gap: 8px;
+            }
+            
+            .nav-item {
+                padding: 8px 4px;
+                font-size: 12px;
+            }
+            
+            .image-overlay {
+                font-size: 9px;
+                padding: 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    
+    <div class="container">
+        <!-- 轮播图区域 -->
+        <div class="carousel-container">
+            <a href="https://45660801.sizled.com/?cid=310446" target="_blank">
+                <img class="carousel-slide active" src="https://img.alicdn.com/imgextra/i3/4183327079/O1CN01vQ2ysK22AEokQZeiA_!!4183327079.gif" alt="轮播图1">
+            </a>
+            <a href="https://yyqqcom0803118.hxbzfw.com/008xb39" target="_blank">
+                <img class="carousel-slide" src="https://img.alicdn.com/imgextra/i4/4183327079/O1CN01AwtIru22AEp7NzMLD_!!4183327079.gif" alt="轮播图2">
+            </a>
+            <a href="https://777995.50701647.com:507/ad88.html?pg6002#pg6002" target="_blank">
+                <img class="carousel-slide" src="https://pg777111.img3784715638.com:8585/8888/pg507/320-185.gif" alt="轮播图3">
+            </a>
+            <a href="https://2pg.91314434.cc/" target="_blank">
+                <img class="carousel-slide" src="https://imgsa.baidu.com/forum/pic/item/0b55b319ebc4b745a48c520589fc1e178a82158d.jpg" alt="轮播图4">
+            </a>
+            
+            <div class="carousel-nav">
+                <button id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+                <button id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            
+            <div class="carousel-indicators">
+                <span class="carousel-indicator active" data-index="0"></span>
+                <span class="carousel-indicator" data-index="1"></span>
+                <span class="carousel-indicator" data-index="2"></span>
+                <span class="carousel-indicator" data-index="3"></span>
+            </div>
+        </div>
+        
+        <!-- 小图片区域 -->
+        <div class="small-images">
+            <h2 class="section-title">热门应用</h2>
+            <div class="images-grid" id="imagesGrid">
+                <!-- 小图片将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        <style>
+    .hf60{
+        height: 60px; 
+    }
+    .hf120{
+        height: 120px; 
+    }
+    .hf180{
+        height: 180px; 
+    }
+    .hf240{
+        height: 240px; 
+    }
+    @media (max-width: 960px){
+        .hf60{
+            height: 6.25vw; 
+        }
+        .hf120{
+            height: 12.5vw; 
+        }
+        .hf180{
+            height: 18.75vw; 
+        }
+        .hf240{
+            height: 25vw; 
+        }
+    }
+</style>
+
+
+
+
+<!--dragon im&#20307;&#32946; #4-->
+<div><a href="https://copeiajp.shilanhua.com/03370e8/bcfc52.html?shareName=vmiss"target="_blank">
+<img class="hf120" src="https://aliyun.png-0329.ccjjdwt.com/2024/1196/960-120.webp" border="0" width="100%" style="border: 1px inset #FFC107')"></a></div>
+
+
+<!--C K #4-->
+<div><a href="https://copeiajp.shilanhua.com/pjef56fg/pehuy78.html?shareName=pjlssn"target="_blank">
+<img class="hf120" src="https://aliyun.png-0329.ccjjdwt.com/2024/718/960X120.webp" border="0" width="100%" style="border: 1px inset #FFC107')"></a></div>
+
+<!--&#26368;&#39640;&#24005;&#23792; &#24320;&#20803;308-->
+<div><a href="https://w7773381.vip/"target="_blank">
+<img class="hf120" src="https://bb82195965.com/dc85ceb7ebb54b068444b005dc972640.gif" border="0" width="100%" style="border: 1px inset #FFC107')"></a></div>
+
+
+
+
+
+
+<!--C K #4-->
+<div><a href="https://9568087.com/nice.htm?07513"target="_blank">
+<img class="hf120" src="https://9568df002.com/syk.gif" border="0" width="100%" style="border: 1px inset #FFC107')"></a></div>
+
+		    
+	</ul></div>
+        <!-- 框架导航区域 -->
+        <div class="navigation-frame">
+            <h2 class="section-title">热门导航</h2>
+            <div class="nav-grid" id="navGrid">
+                <!-- 导航项将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+    <div class="mm-content">
+<div class="row">
+
+
+
+    <script>
+        // 轮播图功能
+        const slides = document.querySelectorAll('.carousel-slide');
+        const indicators = document.querySelectorAll('.carousel-indicator');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        let currentSlide = 0;
+        
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            indicators.forEach(indicator => indicator.classList.remove('active'));
+            
+            slides[index].classList.add('active');
+            indicators[index].classList.add('active');
+            currentSlide = index;
+        }
+        
+        function nextSlide() {
+            const index = (currentSlide + 1) % slides.length;
+            showSlide(index);
+        }
+        
+        function prevSlide() {
+            const index = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(index);
+        }
+        
+        nextBtn.addEventListener('click', nextSlide);
+        prevBtn.addEventListener('click', prevSlide);
+        
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => showSlide(index));
+        });
+        
+        // 自动轮播
+        setInterval(nextSlide, 5000);
+        
+        // 生成小图片
+        function generateImages() {
+            const imagesGrid = document.getElementById('imagesGrid');
+            imagesGrid.innerHTML = '';
+            
+            // 图片数据：包含URL、标题和链接
+            const imageData = [
+                { url: 'https://huohua.plxao.com/mtad/v4/150.gif', title: '蜜桃看片', link: 'https://cqyvtu.51jshf.com/default/?channelCode=lf613' },
+                { url: 'https://huohua.plxao.com/ssad/150.gif', title: '水仙视频', link: 'https://sseda.090es.com/default/?channelCode=mm0704' },
+                { url: 'https://imgsa.baidu.com/forum/pic/item/3bf33a87e950352a95d5d61a1543fbf2b2118b68.jpg', title: '286娱乐', link: 'https://2pg.91314434.cc/' },
+                { url: 'https://img.alicdn.com/imgextra/i3/4183327079/O1CN01HFS5yY22AEolWlnDW_!!4183327079.gif', title: '新普京', link: 'https://45660801.sizled.com/?cid=310446' },
+                { url: 'https://img.alicdn.com/imgextra/i4/4183327079/O1CN01APppyC22AEpC1WJKk_!!4183327079.gif', title: '葡京赌场', link: 'https://yyqqcom0803118.hxbzfw.com/008xb39' },
+                { url: 'https://taohua.ynye119.com/th/150-8.gif', title: '免费看片', link: 'https://prrku7io.nqjlly.com/th/by/?channelCode=th251' },
+                { url: 'https://img.xmshengchao.com:1688/images/9c34af05-81b9-4d1f-be63-734d70262b44', title: '大發赌场', link: 'https://487平等公正.爱国敬业.新疆铁道职业技术学院.com:26548/GAgpj' },
+                { url: 'https://qrsa.yxai123.com/f1067f057f9f3415205bc5de44bd7d5b.gif', title: '澳门葡京', link: 'https://64.f64274929.com/' },
+                
+                { url: 'https://pg777111.img3784715638.com:8585/8888/pg507/logo1.gif', title: '开元棋牌', link: 'https://777995.50701647.com:507/ad88.html?pg6002#pg6002' },
+                { url: 'https://v.山东面粉.com/e20250506_1955_1.gif', title: '魅影直播', link: 'https://hbtfaysb.hfxla.com/O9f.html' },
+                { url: 'https://www.5672-rpcu.cc/wnsr/wnsr70u70.gif', title: '威尼斯人', link: 'https://v2wwz.802-5-xz-chxkcsgy.cc/?cid=8504385' },
+                { url: 'https://ys.fhgjds.com/i/wns99%E7%83%AD-150-150-1.gif', title: '下载送888', link: 'https://j8vip163.com/' },
+                { url: 'https://2015.rsetbre454.com/508166/150x150.gif', title: '注册送6666', link: 'https://146.103.87.104:5001/?dl=$5bzgh3$CNY$2' },
+                { url: 'https://22229999.cc/26a45d83139642f29ad79e28816f1b91.gif', title: '澳门新普京', link: 'https://w7771558.vip/' },
+                
+                { url: 'https://img.alicdn.com/imgextra/i3/3382900570/O1CN01CmdZrx1G56p8f4xBE_!!3382900570.gif', title: '澳门威尼斯', link: 'https://www.9725756.com/' },
+               
+                
+                { url: 'https://fcw1.site/i/2024/12/31/qu0xc4.gif', title: '首存送8888', link: 'https://gdh8869.com/' },
+                { url: 'https://aa57566257.com/74ed3c52a5074882a505edbe2254cd02.gif', title: 'PG电子城', link: 'https://77897vv.cc:57777/' },
+                { url: 'https://bb82195965.com/35902215d5a84199b3d8a9f9c8155a7b.gif', title: '澳门金沙', link: 'https://w7773381.vip/' },
+                { url: 'https://collision3550.top/b7307118fb42b64017dea3e5f313a9c8.gif', title: 'PG娱乐城', link: 'https://www.9909042.com/?&coverStatus=1&shareSource=0' },
+                { url: 'https://img.ah7907.com/388-200x200.gif', title: '太阳城', link: 'https://b3b2s-234.gcdws8.com/?shareName=388x330' },
+                { url: 'https://huohua.plxao.com/neihan/v3/100-s.gif', title: '内涵直播', link: 'https://6p.qzltt.com:8443/search.php?u=MTM2ODgzUm96OUpvUWNxdERXWFB2L0xQdlhpSUVlUVROSVBHQVlueCtaaGt4K1orWWMwczZGYnJnWTZQQ1l1QWtudzZNeGZKVW5IVnkwZitXMWVaSnNvM2xDL2d5ejgrQWNpUGdoNHVtdTc3MUVR' },
+                { url: 'https://imgsa.baidu.com/forum/pic/item/0eb30f2442a7d9333e067c61eb4bd11373f00172.jpg', title: 'PG大放水', link: 'https://6p.qzltt.com:8443/index/index/index3?u=YTNlMWRBb3lIOGxPRGExRDNVVkZxVDYrQ0FxSkdMZjZ0UTRQTWhqUDBuNUFWWkFUL0hnb3VrbGJIei9ZdDN1cHZZRG90WGFENUNTQkVNdXpQaFE=' },
+                { url: 'https://vnsimg.hfzkgw.com//0668bc4ba6cf6d980af8bd5b7644aea4.gif', title: '一投即中', link: 'https://85.211.176.173:7885/?cid=6484819' },
+                
+                { url: 'https://imgsa.baidu.com/forum/pic/item/5ab5c9ea15ce36d3dc0bbc207cf33a87e950b196.jpg', title: '开元棋牌', link: 'http://tzgdv81wkzur-1134675892.ap-northeast-1.elb.amazonaws.com/?shareName=56160014cc' },
+                { url: 'https://vnsimg.hfzkgw.com/3d7293887b444b1e7f70364b84d9bbbb.gif', title: 'PG国际', link: 'https://13.71.109.245:7881/?cid=871919' }
+            ];
+            
+            imageData.forEach(data => {
+                const imageContainer = document.createElement('a');
+                imageContainer.className = 'small-image-container';
+                imageContainer.href = data.link;
+                imageContainer.target = '_blank';
+                
+                const image = document.createElement('img');
+                image.className = 'small-image';
+                image.src = data.url;
+                image.alt = data.title;
+                
+                // 确保图片加载完成后正确显示
+                image.onload = function() {
+                    // 如果图片加载失败，显示备用背景
+                    this.onerror = function() {
+                        this.style.display = 'none';
+                        imageContainer.style.backgroundImage = `url('https://picsum.photos/seed/fallback${Math.floor(Math.random() * 100)}/300/300.jpg')`;
+                        imageContainer.style.backgroundSize = 'contain';
+                        imageContainer.style.backgroundPosition = 'center';
+                        imageContainer.style.backgroundRepeat = 'no-repeat';
+                    };
+                };
+                
+                const overlay = document.createElement('div');
+                overlay.className = 'image-overlay';
+                overlay.textContent = data.title;
+                
+                imageContainer.appendChild(image);
+                imageContainer.appendChild(overlay);
+                imagesGrid.appendChild(imageContainer);
+            });
+        }
+        
+        // 生成导航项
+        function generateNavItems() {
+            const navGrid = document.getElementById('navGrid');
+            navGrid.innerHTML = '';
+            
+            // 导航数据：包含标题和链接
+            const navData = [
+                { title: '秘密研究所', link: 'https://di.tu2pian233.sbs/友爱/favicons(202)' },
+                { title: '传送门', link: 'https://c66da5.csmendh9.com' },
+                { title: 'TIKTOK入口', link: 'https://叁叁ce18.fanppudu69.cc/好学/' },
+                { title: '第一导航', link: '"https://diyyyy31.top/zz/?form=diwang' },
+                { title: '不良研究所', link: 'https://兒abcdef2梦1.midao6.xyz/热爱生活/' },
+                { title: 'AV集市', link: 'https://dwhs.avjishi2025.sbs/功到自然成/' },
+                { title: '深夜必备', link: 'https://Y2V0.sybbdh8.cc/高山流水/?from=diwyyang.cc' },
+                { title: '翻翻福利墙', link: 'https://鎊1p.fffqqq3.com/光4z俵-1288/' },
+				{ title: '星空入口', link: 'https://蔑义昷读.01heiliaomimi.com/漓稽讎嬭/a379-dk3a.html' },
+                { title: '千度导航', link: 'https://伺檳睸飽9.qddhpixue0.cc/e厥丹覇0' },
+                { title: '神秘岛屿', link: 'https://籩耕d.shenmidao1.cc/呐月m3/?id=926' },
+                { title: '8X交欢会所', link: 'https://8xjhhsber.top/仈杈/linka/' },
+                { title: '小嫂嫂导航', link: 'https://de45f.xss2csss14s.cc/xss/?from=diwangdh66' },
+                { title: '成人色导航', link: 'https://5bde62.52crs35.com/雛t7/' },
+                { title: '逗妇乳导航', link: 'https://粺韝7654.df66r.cc/阳光/' },
+                { title: '黑色360导航', link: 'https://hs360.40heise360dh.cc/heise/' },
+                { title: '深夜看片', link: 'https://Y2V0.sybbdh8.cc/高山流水/?from=diwyyang.cc' },
+                { title: '萝莉岛VIP', link: 'https://fkp8c.ivvps2025.buzz/p7ra91y/' },
+                { title: '悟空导航', link: 'https://慸慸.wkdhas5t.xyz/叺曄/' },
+                { title: '网曝研究所', link: 'https://wbyjs.wbyjs4.top/wbyjs/?id=diwang' },
+                { title: '黑料福利网', link: 'https://hye30th.xyz/go/' },
+                { title: 'AV研究所', link: 'https://垻伺aa3.haoppqaz19.cc/好学/' },
+                { title: '制服癖导航', link: 'https://manage.izfp6.buzz/go/' },
+                { title: '阅女阁', link: 'https://火影-168-ApBNo.yngdh.cc/kk/' },
+                { title: '第一找片网', link: 'https://fcagxf46c.ganbendhf4.cc/gg/?from=321' },
+                { title: '水帘洞导航', link: 'https://imagebase.52sld.buzz/link/' },
+                { title: '秘密入口', link: 'https://www.mimi2024.cc/link' },
+                { title: '三千佳丽', link: 'https://陆陆fe18.jiaddaap62.cc/富强/' },
+                { title: 'X站入口', link: 'https://xzrk.xzrk4.top/xzrk/?id=diwang' },
+                { title: 'S级通道', link: 'https://stdtwo001.xyz/haven/port.html?for=ixfjsw' },
+                
+            ];
+            
+            navData.forEach(data => {
+                const navItem = document.createElement('a');
+                navItem.className = 'nav-item';
+                navItem.href = data.link;
+                navItem.target = '_blank';
+                navItem.textContent = data.title;
+                
+                navGrid.appendChild(navItem);
+            });
+        }
+        
+        // 初始化页面
+        generateImages();
+        generateNavItems();
+    </script>
+	<div class="faq">
+<a onclick="addFavorite(window.location,document.title)" href="javascript:void(0)"><div class="faq_scj" id="scj"></div></a>
+<a href="https://t.me/vipb321/" target="_blank"><div class="faq_div" id="guestbook">关于我们</div></a>
+<a href="https://t.me/vipb321/" target="_blank"><div class="faq_div" id="guestbook">  商务合作：@vipb321</div></a>
+
+
+<!-- 底部说明 -->
+<div class="footer">
+ 声明：本站所有站点收集于全球互联网，内容与本站无关，仅为非大陆地区的境外华裔人士提供参考，若来访者国家法律不允许，请自行离开！
+Warning: The website collected by this website comes from the global Internet. The website content has nothing to do with this site. The website is maintained in the United States and is protected by US law. If the visitor's laws do not allow it, please leave by yourself!
+Copyright © 2020 福利导航. All Rights Reserved.
+</div>
+</body>
+</html>
